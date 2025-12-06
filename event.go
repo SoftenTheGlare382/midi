@@ -68,14 +68,13 @@ func ControlChange(channel, controller, newVal int) *Event {
 	}
 }
 
-// ProgramChange sets a new value the same way as ControlChange
-// but implements Mode control and special message by using reserved controller numbers 120-127.
-func ProgramChange(channel, controller, newVal int) *Event {
+// ProgramChange sets a new Program Number for the given channel.
+// The new program number is between 0-127.
+func ProgramChange(channel, newProgram int) *Event {
 	return &Event{
 		MsgChan:    uint8(channel),
 		MsgType:    uint8(EventByteMap["ProgramChange"]),
-		Controller: uint8(controller),
-		NewValue:   uint8(newVal),
+		NewProgram: uint8(newProgram),
 	}
 }
 
@@ -345,9 +344,6 @@ func (e *Event) Encode() ([]byte, error) {
 		*/
 	case 0xC:
 		if err := binary.Write(buff, binary.BigEndian, e.NewProgram); err != nil {
-			return buff.Bytes(), err
-		}
-		if err := binary.Write(buff, binary.BigEndian, e.NewValue); err != nil {
 			return buff.Bytes(), err
 		}
 		// Channel Pressure (Aftertouch)
